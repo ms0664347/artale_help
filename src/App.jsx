@@ -28,7 +28,6 @@ function Lobby() {
   }, [mode]);
 
   const handleAction = async () => {
-    // 1. 房號加上 .trim() 去除空白
     const cleanRoomId = form.roomId.trim();
     const cleanPassword = form.password.trim();
 
@@ -37,7 +36,6 @@ function Lobby() {
       return;
     }
 
-    // 2. 密碼長度檢查（必須是 4 位）
     if (cleanPassword.length !== 4) {
       window.Swal.fire({ icon: 'warning', title: '密碼格式錯誤', text: '請輸入 4 位數字密碼', background: '#1a1a1a', color: '#fff' });
       return;
@@ -97,7 +95,6 @@ function Lobby() {
         {(mode === 'create' || mode === 'join') && (
           <div style={{ backgroundColor: '#111', padding: '30px', borderRadius: '20px', border: '1px solid #333' }}>
             <h2 style={{ marginBottom: '20px' }}>{mode === 'create' ? '建立新對局' : '進入對局'}</h2>
-
             {mode === 'create' ? (
               <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#000', borderRadius: '10px', border: '1px dashed #444' }}>
                 <div style={{ color: '#666', fontSize: '12px' }}>自動生成房號</div>
@@ -111,8 +108,6 @@ function Lobby() {
                 onChange={e => setForm({ ...form, roomId: e.target.value })}
               />
             )}
-
-            {/* 密碼輸入框：限制 4 位數字 */}
             <input
               type="text"
               inputMode="numeric"
@@ -122,11 +117,10 @@ function Lobby() {
               style={inputStyle}
               value={form.password}
               onChange={e => {
-                const val = e.target.value.replace(/\D/g, ''); // 只允許數字
+                const val = e.target.value.replace(/\D/g, '');
                 setForm({ ...form, password: val });
               }}
             />
-
             <button onClick={handleAction} style={{ ...btnStyle, backgroundColor: '#fff', color: '#000', marginTop: '10px' }}>確定</button>
             <p onClick={() => setMode('menu')} style={{ color: '#666', cursor: 'pointer', marginTop: '15px' }}>返回主選單</p>
           </div>
@@ -226,6 +220,17 @@ function GameRoom() {
       window.Swal.fire({ icon: 'error', title: '請先選顏色！', background: '#1a1a1a', color: '#fff' });
       return;
     }
+
+    // 搶位邏輯：檢查是否有其他人選了這格
+    const isTakenByOthers = Object.entries(allPlayers).some(([pKey, data]) => {
+      return pKey !== playerKey && data.choices?.[floorIndex] === cellIndex;
+    });
+
+    if (isTakenByOthers) {
+      window.Swal.fire({ icon: 'warning', title: '這格已經有人囉！', timer: 1000, showConfirmButton: false, background: '#1a1a1a', color: '#fff' });
+      return;
+    }
+
     const currentChoice = allPlayers[playerKey]?.choices?.[floorIndex];
     const newChoice = currentChoice === cellIndex ? null : cellIndex;
     update(ref(db, `rooms/${ roomId }/players/${ playerKey }/choices`), { [floorIndex]: newChoice });
@@ -236,22 +241,13 @@ function GameRoom() {
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff', padding: '10px', fontFamily: 'sans-serif' }}>
 
+      {/* 頂部導航欄優化 */}
       <div style={{
-        position: 'sticky',
-        top: 0,
-        backgroundColor: 'rgba(0,0,0,0.98)',
-        zIndex: 100,
-        borderBottom: '2px solid #333',
-        padding: '0 8px', // 左右保留間距
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px',
-        // --- 關鍵修改：直接給予固定高度，確保區塊夠大 ---
-        height: '100px',
-        boxSizing: 'border-box'
+        position: 'sticky', top: 0, backgroundColor: 'rgba(0,0,0,0.98)', zIndex: 100,
+        borderBottom: '2px solid #333', padding: '0 8px', display: 'flex',
+        justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px',
+        height: '100px', boxSizing: 'border-box'
       }}>
-
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '5px' }}>
           <button onClick={handleExitRoom} style={{ backgroundColor: '#333', color: '#eee', border: 'none', padding: '6px 8px', borderRadius: '6px', fontSize: isMobile ? '12px' : '16px', fontWeight: 'bold', cursor: 'pointer' }}>返回大廳</button>
           <button onClick={handleClearAll} style={{ backgroundColor: '#1a1a1a', color: '#555', border: '1px solid #222', padding: '6px 8px', borderRadius: '6px', fontSize: isMobile ? '12px' : '16px', fontWeight: 'bold' }}>重置全部</button>
@@ -259,18 +255,18 @@ function GameRoom() {
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <h1 style={{ margin: 0, fontSize: isMobile ? '18px' : '24px', fontWeight: '900', letterSpacing: '2px', color: '#fff', lineHeight: '1.1', whiteSpace: 'nowrap' }}>房號:{roomId}</h1>
-            <h2 style={{ fontSize: isMobile ? '14px' : '18px', color: '#fbbf24', fontWeight: '800', marginTop: '2px', letterSpacing: '1px', whiteSpace: 'nowrap' }}>密碼:{pwd}</h2>
+            <h1 style={{ margin: 0, fontSize: isMobile ? '20px' : '26px', fontWeight: '900', color: '#fff', lineHeight: '1.2' }}>房號:{roomId}</h1>
+            <span style={{ fontSize: isMobile ? '16px' : '20px', color: '#fbbf24', fontWeight: '800', marginTop: '2px' }}>密碼:{pwd}</span>
           </div>
-          <button onClick={handleCopyInfo} style={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff', borderRadius: '8px', width: isMobile ? '28px' : '34px', height: isMobile ? '28px' : '34px', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>📋</button>
+          <button onClick={handleCopyInfo} style={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer' }}>📋</button>
         </div>
 
-        <div style={{ flexShrink: 0, display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '4px', paddingLeft: '5px' }}>
+        <div style={{ flexShrink: 0, display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '4px' }}>
           {AVAILABLE_COLORS.map((color) => {
             const isTaken = Object.entries(allPlayers).some(([pKey, data]) => pKey !== playerKey && data.color === color.hex);
             const isMyColor = allPlayers[playerKey]?.color === color.hex;
             return (
-              <button key={color.id} disabled={isTaken} onClick={() => handleColorSelect(color.hex)} style={{ width: isMobile ? '20px' : '22px', height: isMobile ? '20px' : '22px', borderRadius: '5px', border: isMyColor ? '2px solid white' : '1px solid transparent', backgroundColor: color.hex, opacity: isTaken ? 0.1 : 1 }} />
+              <button key={color.id} disabled={isTaken} onClick={() => handleColorSelect(color.hex)} style={{ width: '22px', height: '22px', borderRadius: '5px', border: isMyColor ? '2px solid white' : '1px solid transparent', backgroundColor: color.hex, opacity: isTaken ? 0.1 : 1 }} />
             );
           })}
         </div>
@@ -290,8 +286,24 @@ function GameRoom() {
                     if (pKey === playerKey) isMine = true;
                   }
                 });
+                const isTakenByOthers = occupantColor && !isMine;
                 return (
-                  <button key={cellIdx} onClick={() => handleSelect(floorIdx, cellIdx)} style={{ height: '60px', backgroundColor: occupantColor || '#222', borderRadius: '10px', border: 'none', color: '#fff', fontSize: '12px', fontWeight: 'bold', outline: isMine ? '3px solid white' : 'none', outlineOffset: '-3px' }}>
+                  <button
+                    key={cellIdx}
+                    onClick={() => handleSelect(floorIdx, cellIdx)}
+                    style={{
+                      height: '60px',
+                      backgroundColor: occupantColor || '#222',
+                      borderRadius: '10px',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      outline: isMine ? '3px solid white' : 'none',
+                      outlineOffset: '-3px',
+                      opacity: isTakenByOthers ? 0.6 : 1,
+                      cursor: isTakenByOthers ? 'not-allowed' : 'pointer'
+                    }}>
                     {isMine ? 'YOU' : ''}
                   </button>
                 );
