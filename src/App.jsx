@@ -256,7 +256,7 @@ function GameRoom() {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <h1 style={{ margin: 0, fontSize: isMobile ? '20px' : '26px', fontWeight: '900', color: '#fff', lineHeight: '1.2' }}>房號:{roomId}</h1>
-            <span style={{ fontSize: isMobile ? '16px' : '20px', color: '#fbbf24', fontWeight: '800', marginTop: '2px' }}>密碼:{pwd}</span>
+            <h2 style={{ fontSize: isMobile ? '16px' : '20px', color: '#fbbf24', fontWeight: '800', marginTop: '2px' }}>密碼:{pwd}</h2>
           </div>
           <button onClick={handleCopyInfo} style={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer' }}>📋</button>
         </div>
