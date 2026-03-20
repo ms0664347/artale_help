@@ -83,7 +83,7 @@ function Lobby() {
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px' }}>
       <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
         <h1 style={{ fontSize: '48px', fontWeight: '900', marginBottom: '10px' }}>Artale</h1>
-        <h2 style={{ color: '#888', marginBottom: '40px', fontSize: '16px' }}>羅密歐與祝英台 HELPER</h2>
+        <h2 style={{ color: '#888', marginBottom: '40px', fontSize: '16px' }}>羅密歐與祝英台 Helper</h2>
 
         {mode === 'menu' && (
           <>
