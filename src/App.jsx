@@ -92,6 +92,7 @@ function Lobby() {
       <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
         <h1 style={{ fontSize: '48px', fontWeight: '900', marginBottom: '20px' }}>Artale</h1>
         <h2 style={{ color: '#888', marginBottom: '40px', fontSize: '20px' }}>羅密歐與祝英台 Helper</h2>
+        <h2 style={{ color: '#555', marginBottom: '30px', fontSize: '16px' }}>我打玩了，先關了，謝謝大家!</h2>
         {mode === 'menu' && (
           <>
             <button onClick={() => setMode('create')} style={{ ...btnStyle, backgroundColor: '#3b82f6', color: '#fff' }}>創建房間</button>
